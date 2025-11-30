@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  fhevm-relayer:
+    image: zamafhe/relayer:latest
+    ports:
+      - "8010:8010"
+    environment:
+      - FHEVM_NETWORK=local
+      - RUST_LOG=info
+    volumes:
+      - relayer-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  relayer-data:
+

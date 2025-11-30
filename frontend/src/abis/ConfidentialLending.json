@@ -1,0 +1,60 @@
+[
+  {
+    "type": "function",
+    "name": "applyForLoan",
+    "inputs": [
+      { "name": "extIncome", "type": "bytes", "internalType": "externalEuint64" },
+      { "name": "extRepaymentScore", "type": "bytes", "internalType": "externalEuint16" },
+      { "name": "extDebt", "type": "bytes", "internalType": "externalEuint64" },
+      { "name": "extLoanAmount", "type": "bytes", "internalType": "externalEuint64" },
+      { "name": "attestation", "type": "bytes", "internalType": "bytes" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getMyApplication",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "bytes", "internalType": "euint64" },
+      { "name": "", "type": "bytes", "internalType": "euint8" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "updateThreshold",
+    "inputs": [
+      { "name": "newThreshold", "type": "uint64", "internalType": "uint64" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "admin",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "minScoreForApproval",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "uint64", "internalType": "uint64" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "LoanApplied",
+    "inputs": [
+      { "name": "borrower", "type": "address", "indexed": true, "internalType": "address" }
+    ],
+    "anonymous": false
+  }
+]
