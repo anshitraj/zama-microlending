@@ -104,7 +104,8 @@ function App() {
     }
     
     // CRITICAL: Check if MetaMask is installed
-    if (typeof window.ethereum === 'undefined') {
+    const ethereum = (window as any).ethereum;
+    if (typeof ethereum === 'undefined') {
       alert('Please install MetaMask to use this application.');
       console.error('❌ window.ethereum is undefined. MetaMask not installed.');
       return;
@@ -114,11 +115,11 @@ function App() {
       console.log('🔗 Connecting wallet...');
       
       // CRITICAL: Request accounts FIRST (this connects the wallet)
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await ethereum.request({ method: 'eth_requestAccounts' });
       console.log('✅ Wallet connection requested');
       
       // Now create provider and get signer
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
 
@@ -130,7 +131,7 @@ function App() {
       setAccount(address);
 
       // Listen for account changes
-      window.ethereum.on('accountsChanged', async (accounts: string[]) => {
+      ethereum.on('accountsChanged', async (accounts: string[]) => {
         if (accounts.length === 0) {
           setAccount(null);
           setSigner(null);
@@ -139,7 +140,7 @@ function App() {
         } else {
           setAccount(accounts[0]);
           // Create a new provider instance to get the updated signer
-          const newProvider = new ethers.BrowserProvider(window.ethereum);
+          const newProvider = new ethers.BrowserProvider(ethereum);
           const newSigner = await newProvider.getSigner();
           setProvider(newProvider);
           setSigner(newSigner);
@@ -147,7 +148,7 @@ function App() {
       });
 
       // Listen for chain changes (user switches network)
-      window.ethereum.on('chainChanged', () => {
+      ethereum.on('chainChanged', () => {
         console.log('🔄 Network changed, reloading page...');
         window.location.reload();
       });

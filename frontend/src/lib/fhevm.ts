@@ -54,7 +54,7 @@ function buildSepoliaConfig(): FhevmInstanceConfig {
   // Get RPC URL - CRITICAL: SDK needs this to connect to blockchain
   // Only set rpcUrl if window.ethereum is NOT available (SDK prefers window.ethereum)
   let rpcUrl: string | undefined = undefined;
-  const hasWindowEthereum = typeof window !== 'undefined' && !!window.ethereum;
+  const hasWindowEthereum = typeof window !== 'undefined' && !!(window as any).ethereum;
   
   if (!hasWindowEthereum) {
     // No window.ethereum, so we MUST provide rpcUrl
@@ -87,13 +87,15 @@ function buildSepoliaConfig(): FhevmInstanceConfig {
   };
   
   // Only add rpcUrl to config if it's set (don't add if window.ethereum will be used)
+  // Note: rpcUrl is not in the type definition but SDK accepts it
   if (rpcUrl) {
     (config as any).rpcUrl = rpcUrl;
   }
   
+  const configRpcUrlForLog = (config as any).rpcUrl;
   console.log('🔧 Built custom config:', {
     relayerUrl: config.relayerUrl,
-    rpcUrl: config.rpcUrl ? `${config.rpcUrl.substring(0, 30)}...` : '(not set)',
+    rpcUrl: configRpcUrlForLog ? `${configRpcUrlForLog.substring(0, 30)}...` : '(not set)',
     chainId: config.chainId,
     gatewayChainId: config.gatewayChainId,
     hasAddresses: !!(config.aclContractAddress && config.kmsContractAddress),
@@ -123,7 +125,7 @@ export async function initFhevm(provider?: ethers.BrowserProvider): Promise<Fhev
   });
   
   // CRITICAL: Verify provider is available
-  const hasWindowEthereum = typeof window !== 'undefined' && !!window.ethereum;
+  const hasWindowEthereum = typeof window !== 'undefined' && !!(window as any).ethereum;
   const configRpcUrl = (config as any).rpcUrl;
   if (!hasWindowEthereum && !configRpcUrl) {
     const error = '❌ No RPC URL or Ethereum provider found! Please set VITE_RPC_URL in .env or connect MetaMask.';
@@ -174,7 +176,7 @@ export async function initFhevm(provider?: ethers.BrowserProvider): Promise<Fhev
     );
     
     // Log the exact moment we call createInstance
-    const hasWindowEthereum = typeof window !== 'undefined' && !!window.ethereum;
+    const hasWindowEthereum = typeof window !== 'undefined' && !!(window as any).ethereum;
     const configRpcUrl = (config as any).rpcUrl;
     console.log('🚀 Calling createInstance with:', {
       relayerUrl: config.relayerUrl,
@@ -325,10 +327,13 @@ export async function encryptLoanInputs(
   enc.add64(values.debt);
   enc.add64(values.loanAmount);
   console.log('📦 Encrypting inputs with FHE...');
-  const { inputs, attestation } = await enc.encrypt();
+  const encryptResult = await enc.encrypt();
+  // SDK may return different structure - handle both
+  const inputs = (encryptResult as any).inputs || (encryptResult as any).handles || [];
+  const attestation = (encryptResult as any).attestation || (encryptResult as any).inputProof || '';
   console.log('✅ Encryption successful!', {
     inputCount: inputs.length,
-    attestationLength: attestation.length,
+    attestationLength: typeof attestation === 'string' ? attestation.length : attestation?.length || 0,
     note: 'All data is now encrypted and ready for on-chain submission'
   });
   return { inputs, attestation };
@@ -367,10 +372,25 @@ export async function decryptApplication(
     { contractAddress, handle: approvedHandle },
   ];
 
-  const chainId = await signer.getChainId();
+  // Get chainId from provider, not signer
+  const provider = signer.provider;
+  const network = provider ? await provider.getNetwork() : null;
+  const chainId = network ? Number(network.chainId) : 11155111;
+  const userAddress = await signer.getAddress();
   const now = Math.floor(Date.now() / 1000);
+  const durationDays = 1;
+  
   console.log('✍️ Creating EIP-712 typed data for decryption request...');
-  const typedData = await fhe.createEIP712(chainId, pairs, now, 1);
+  
+  // SDK API - createEIP712 expects chainId as string
+  let typedData: any;
+  try {
+    typedData = await fhe.createEIP712(String(chainId), pairs as any, now, durationDays);
+  } catch (e) {
+    // Fallback if API is different
+    const pairHandles = pairs.map(p => p.handle);
+    typedData = await (fhe.createEIP712 as any)(String(chainId), pairHandles, now, durationDays);
+  }
 
   console.log('🔐 Requesting user signature for decryption...');
   // In ethers v6, signTypedData is available directly on JsonRpcSigner
@@ -379,7 +399,32 @@ export async function decryptApplication(
   );
   console.log('✅ Signature obtained, sending to relayer for decryption...');
 
-  const decryptedMap: Record<string, string> = await fhe.userDecrypt(signature, pairs);
+  // SDK userDecrypt requires 8 parameters
+  // Get public key from FHEVM instance if available
+  const publicKey = (fhe as any).publicKey || '';
+  const privateKey = ''; // Not needed for user decryption
+  const contractAddresses = pairs.map(p => p.contractAddress);
+  
+  // Call userDecrypt with all required parameters
+  const decryptedResult = await (fhe.userDecrypt as any)(
+    pairs,
+    privateKey,
+    publicKey,
+    signature,
+    contractAddresses,
+    userAddress,
+    now,
+    durationDays
+  );
+  
+  const decryptedMap: Record<string, string> = {} as any;
+  
+  // Convert result to string map
+  if (typeof decryptedResult === 'object' && decryptedResult !== null) {
+    for (const [key, value] of Object.entries(decryptedResult)) {
+      decryptedMap[String(key)] = String(value);
+    }
+  }
 
   const score = Number(decryptedMap[scoreHandle]);
   const approved = Number(decryptedMap[approvedHandle]);

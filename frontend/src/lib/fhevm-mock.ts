@@ -43,8 +43,8 @@ export async function mockEncryptLoanInputs(
 
 // Mock decryption function
 export async function mockDecryptApplication(
-  contract: ethers.Contract,
-  signer: ethers.JsonRpcSigner
+  _contract: ethers.Contract,
+  _signer: ethers.JsonRpcSigner
 ): Promise<{ score: number; approved: number }> {
   console.log('🔓 [MOCK] Starting decryption process...');
   
