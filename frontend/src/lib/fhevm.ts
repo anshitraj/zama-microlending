@@ -197,8 +197,11 @@ export async function initFhevm(): Promise<FhevmInstance> {
     const windowEthereum = typeof window !== 'undefined' ? (window as any).ethereum : null;
     
     if (windowEthereum) {
-      // CRITICAL: According to Zama SDK docs, explicitly pass window.ethereum as provider
-      // The SDK's getProvider() function checks config.provider first, then window.ethereum
+      /*
+       * CRITICAL FIX: In Relayer SDK v0.2.x/v0.3.x, the key for an EIP-1193 provider is `network`
+       * (not `provider`). Without `network`, the SDK throws
+       * "You must provide a network URL or a EIP1193 object".
+       */
       console.log('💡 Using window.ethereum (EIP1193 provider)');
       
       // Log network info but don't block initialization
@@ -216,48 +219,57 @@ export async function initFhevm(): Promise<FhevmInstance> {
         console.warn('⚠️ Could not check chainId, continuing anyway...');
       }
       
-      // CRITICAL: According to Zama SDK documentation, the SDK's getProvider() function
-      // checks in this order: 1) config.provider, 2) window.ethereum, 3) config.rpcUrl
-      // We need to ensure at least one is available
-      
-      // Always ensure rpcUrl is available as fallback (from env or default)
-      const finalRpcUrl = configRpcUrl || import.meta.env.VITE_RPC_URL || 'https://rpc.sepolia.org';
-      
       // Verify window.ethereum is actually available and has required methods
       if (!windowEthereum || typeof windowEthereum.request !== 'function') {
         console.error('❌ window.ethereum is not a valid EIP1193 provider!');
         throw new Error('window.ethereum is not a valid EIP1193 provider');
       }
       
-      // Build config with both provider and rpcUrl
-      // SDK will use provider if available, fallback to rpcUrl
+      // Always ensure rpcUrl is available as fallback (from env or default)
+      const finalRpcUrl = configRpcUrl || import.meta.env.VITE_RPC_URL || 'https://rpc.sepolia.org';
+      
+      // CRITICAL: Use 'network' key (not 'provider') for EIP-1193 provider
+      // SDK expects: network: window.ethereum (EIP-1193 provider) OR network: "rpcUrl" (string)
       const configWithProvider: any = { 
         ...config,
-        provider: windowEthereum,  // Explicitly pass EIP1193 provider
-        rpcUrl: finalRpcUrl         // Always include rpcUrl as fallback
+        network: windowEthereum,  // EIP-1193 provider (correct key is 'network')
+        rpcUrl: finalRpcUrl        // Fallback RPC URL
       };
       
       console.log('📋 Final config for SDK:', {
-        hasProvider: !!configWithProvider.provider,
-        providerType: configWithProvider.provider ? 'window.ethereum (EIP1193)' : 'none',
-        providerHasRequest: configWithProvider.provider && typeof configWithProvider.provider.request === 'function',
+        hasNetwork: !!configWithProvider.network,
+        networkType: configWithProvider.network ? 'window.ethereum (EIP1193)' : 'none',
+        networkHasRequest: configWithProvider.network && typeof configWithProvider.network.request === 'function',
         hasRpcUrl: !!configWithProvider.rpcUrl,
         rpcUrlPreview: configWithProvider.rpcUrl ? `${configWithProvider.rpcUrl.substring(0, 40)}...` : 'none',
         chainId: configWithProvider.chainId,
         relayerUrl: configWithProvider.relayerUrl,
-        note: 'SDK will use provider if available, otherwise rpcUrl'
+        note: 'SDK uses network (EIP-1193) if available, otherwise rpcUrl'
       });
       
-      // Verify config has at least provider OR rpcUrl
-      if (!configWithProvider.provider && !configWithProvider.rpcUrl) {
-        throw new Error('No provider or rpcUrl available in config!');
+      // Verify config has at least network OR rpcUrl
+      if (!configWithProvider.network && !configWithProvider.rpcUrl) {
+        throw new Error('No network provider or rpcUrl available in config!');
       }
       
       instancePromise = createInstance(configWithProvider);
     } else if (configRpcUrl) {
-      // No window.ethereum, but rpcUrl is set - use RPC directly
+      // No window.ethereum, but rpcUrl is set - use RPC URL as network
       console.log('💡 Using RPC URL from config (no wallet):', configRpcUrl);
-      instancePromise = createInstance(config);
+      
+      // CRITICAL: When no injected provider, use rpcUrl as network (string)
+      const configWithRpc: any = {
+        ...config,
+        network: configRpcUrl  // Use rpcUrl as network (string)
+      };
+      
+      console.log('📋 Config with RPC URL:', {
+        network: configWithRpc.network ? `${configWithRpc.network.substring(0, 40)}...` : 'none',
+        chainId: configWithRpc.chainId,
+        relayerUrl: configWithRpc.relayerUrl
+      });
+      
+      instancePromise = createInstance(configWithRpc);
     } else {
       throw new Error('No provider available: window.ethereum not found and no rpcUrl in config');
     }
