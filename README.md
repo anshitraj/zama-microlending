@@ -8,7 +8,7 @@ A complete confidential micro-lending engine built with Zama's FHEVM protocol. T
 The React app uses the Relayer SDK to encrypt borrower inputs (income, repayment score, debt, loan amount) in the browser before sending them on-chain. The SDK's `createEncryptedInput` API registers inputs and returns encrypted handles plus an attestation.
 
 ### On-Chain Confidential Computation
-The `ConfidentialLending` smart contract accepts `externalEuint*` parameters and a proof. It converts them to encrypted handles using `FHE.fromExternal()`, then computes the risk score homomorphically with `FHE.add`, `FHE.sub`, and `FHE.mul`. It compares the score against a plaintext threshold using `FHE.gte` and uses `FHE.select` to produce an encrypted approval flag. Decryption rights are granted via `FHE.allow()`.
+The `ConfidentialLending` smart contract accepts `externalEuint*` parameters and a proof. It converts them to encrypted handles using `FHE.fromExternal()`, then computes the risk score homomorphically with `FHE.add`, `FHE.sub`, and `FHE.mul`. It compares the score against a plaintext threshold using `FHE.ge` and uses `FHE.select` to produce an encrypted approval flag. Decryption rights are granted via `FHE.allowForDecryption()` following Zama's best practices.
 
 ### User Decryption
 The borrower can call `getMyApplication()` to fetch their encrypted score and approval flag. The frontend then uses the Relayer SDK to perform a user decryption flow: it prepares EIP-712 typed data, asks the user to sign it, and sends the signature to the relayer which returns the plaintext.
@@ -49,8 +49,8 @@ The borrower can call `getMyApplication()` to fetch their encrypted score and ap
 ### Prerequisites
 
 - Node.js 18+ and npm
-- MetaMask or compatible Web3 wallet
-- Access to Sepolia testnet (for deployment)
+- MetaMask or compatible Web3 wallet (optional for mock mode)
+- Access to Sepolia testnet (for real deployment)
 
 ### Installation
 
@@ -69,17 +69,15 @@ The borrower can call `getMyApplication()` to fetch their encrypted score and ap
    
    Create a `.env` file in the root directory:
    ```bash
-   cp .env.example .env
+   RPC_URL=your_sepolia_rpc_url
+   PRIVATE_KEY=your_deployer_private_key
    ```
-   
-   Fill in your values:
-   - `RPC_URL`: Your Sepolia RPC endpoint
-   - `PRIVATE_KEY`: Your deployer private key
    
    Create a `.env` file in the `frontend` directory:
    ```bash
    cd frontend
    echo "VITE_CONTRACT_ADDRESS=your_contract_address" > .env
+   echo "VITE_USE_MOCK_MODE=false" >> .env  # Set to 'true' for demo mode
    ```
 
 ### Deployment
@@ -102,20 +100,54 @@ The borrower can call `getMyApplication()` to fetch their encrypted score and ap
 
 ### Running the Application
 
-1. **Start the frontend development server:**
+#### Demo Mode (Frontend Only - No Blockchain Required)
+
+For quick demos and testing without blockchain interaction:
+
+1. **Enable mock mode in `frontend/.env`:**
+   ```bash
+   VITE_USE_MOCK_MODE=true
+   ```
+
+2. **Start the frontend:**
    ```bash
    cd frontend
    npm run dev
    ```
 
-2. **Open your browser:**
+3. **Use the application:**
+   - The app will automatically use mock encryption/decryption
+   - No wallet connection needed
+   - All data is simulated locally
+   - Perfect for demos and presentations
+
+#### Real Mode (Full Blockchain Integration)
+
+1. **Deploy the contract first:**
+   ```bash
+   npm run deploy:sepolia
+   ```
+
+2. **Update `frontend/.env` with contract address:**
+   ```bash
+   VITE_CONTRACT_ADDRESS=0x...
+   VITE_USE_MOCK_MODE=false
+   ```
+
+3. **Start the frontend:**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+4. **Open your browser:**
    - The app will open at `http://localhost:3000`
    - Connect your MetaMask wallet
    - Make sure you're on the Sepolia network
 
-3. **Use the application:**
+5. **Use the application:**
    - Fill in the loan application form with your financial data
-   - Submit the encrypted application
+   - Submit the encrypted application (requires real FHEVM relayer)
    - Click "Decrypt My Status" to see your risk score and approval status
 
 ### Testing

@@ -126,9 +126,9 @@ export default function LoanForm({ contractAddress, signer, onSuccess }: LoanFor
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-800/50 to-blue-900/30 rounded-xl shadow-2xl p-6 border-2 border-blue-500/30 backdrop-blur-sm">
+    <div className="bg-black/80 rounded-xl shadow-2xl p-6 border-2 border-gold-500/30 backdrop-blur-sm">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2 text-gray-100">Apply for a Confidential Loan</h2>
+        <h2 className="text-2xl font-bold mb-2 text-gold-300">Apply for a Confidential Loan</h2>
         <p className="text-gray-300 text-sm">
           🔒 All your financial data is encrypted before being sent on-chain. Only you can decrypt your risk score and approval status.
         </p>
@@ -145,7 +145,7 @@ export default function LoanForm({ contractAddress, signer, onSuccess }: LoanFor
             onChange={(e) => setIncome(e.target.value)}
             required
             min="0"
-            className="w-full px-4 py-2 bg-gray-900/50 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100 placeholder-gray-500"
+            className="w-full px-4 py-2 bg-black/50 border border-gold-500/30 rounded-md focus:ring-2 focus:ring-gold-500 focus:border-gold-500 text-gray-100 placeholder-gray-500"
             placeholder="e.g., 5000"
           />
         </div>
@@ -161,7 +161,7 @@ export default function LoanForm({ contractAddress, signer, onSuccess }: LoanFor
             required
             min="0"
             max="100"
-            className="w-full px-4 py-2 bg-gray-900/50 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100 placeholder-gray-500"
+            className="w-full px-4 py-2 bg-black/50 border border-gold-500/30 rounded-md focus:ring-2 focus:ring-gold-500 focus:border-gold-500 text-gray-100 placeholder-gray-500"
             placeholder="e.g., 75"
           />
         </div>
@@ -176,7 +176,7 @@ export default function LoanForm({ contractAddress, signer, onSuccess }: LoanFor
             onChange={(e) => setDebt(e.target.value)}
             required
             min="0"
-            className="w-full px-4 py-2 bg-gray-900/50 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100 placeholder-gray-500"
+            className="w-full px-4 py-2 bg-black/50 border border-gold-500/30 rounded-md focus:ring-2 focus:ring-gold-500 focus:border-gold-500 text-gray-100 placeholder-gray-500"
             placeholder="e.g., 1000"
           />
         </div>
@@ -191,13 +191,13 @@ export default function LoanForm({ contractAddress, signer, onSuccess }: LoanFor
             onChange={(e) => setLoanAmount(e.target.value)}
             required
             min="0"
-            className="w-full px-4 py-2 bg-gray-900/50 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100 placeholder-gray-500"
+            className="w-full px-4 py-2 bg-black/50 border border-gold-500/30 rounded-md focus:ring-2 focus:ring-gold-500 focus:border-gold-500 text-gray-100 placeholder-gray-500"
             placeholder="e.g., 2000"
           />
         </div>
 
         {error && (
-          <div className="bg-gradient-to-r from-red-900/40 to-orange-900/40 border-2 border-red-500/50 text-red-200 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm">
+          <div className="bg-black/60 border-2 border-red-500/50 text-red-200 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm">
             <div className="flex items-start gap-2">
               <span className="text-xl">⚠️</span>
               <div className="flex-1">
@@ -209,9 +209,9 @@ export default function LoanForm({ contractAddress, signer, onSuccess }: LoanFor
         )}
 
         {step && (
-          <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-2 border-blue-500/50 text-blue-200 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm">
+          <div className="bg-black/60 border-2 border-gold-500/50 text-gold-200 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm">
             <div className="flex items-center gap-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gold-400"></div>
               <span className="font-medium">{step}</span>
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function LoanForm({ contractAddress, signer, onSuccess }: LoanFor
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-500 hover:to-indigo-500 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all transform hover:scale-105 shadow-lg shadow-blue-500/50"
+          className="w-full bg-gradient-to-r from-gold-600 to-gold-500 text-black py-3 px-4 rounded-lg font-semibold hover:from-gold-500 hover:to-gold-400 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all transform hover:scale-105 shadow-lg shadow-gold-500/50"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">

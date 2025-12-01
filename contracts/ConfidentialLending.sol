@@ -86,10 +86,13 @@ contract ConfidentialLending {
         app.approved = approvedFlag;
         app.exists = true;
 
+        // Grant access for computation
         FHE.allow(score, msg.sender);
         FHE.allow(approvedFlag, msg.sender);
-        FHE.allow(score, address(this));
-        FHE.allow(approvedFlag, address(this));
+        
+        // Grant decryption rights for user
+        FHE.allowForDecryption(score, msg.sender);
+        FHE.allowForDecryption(approvedFlag, msg.sender);
 
         emit LoanApplied(msg.sender);
     }

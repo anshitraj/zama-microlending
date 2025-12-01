@@ -69,16 +69,16 @@ export default function ResultPanel({ contractAddress, signer }: ResultPanelProp
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-800/50 to-purple-900/30 rounded-xl shadow-2xl p-6 border-2 border-purple-500/30 backdrop-blur-sm">
+    <div className="bg-black/80 rounded-xl shadow-2xl p-6 border-2 border-gold-500/30 backdrop-blur-sm">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2 text-gray-100">Your Loan Application Status</h2>
+        <h2 className="text-2xl font-bold mb-2 text-gold-300">Your Loan Application Status</h2>
         <p className="text-gray-300 text-sm">
           🔓 Decrypt your confidential risk score and approval status. Only you can see this information.
         </p>
       </div>
 
       {error && (
-        <div className="bg-gradient-to-r from-red-900/40 to-orange-900/40 border-2 border-red-500/50 text-red-200 px-4 py-3 rounded-lg mb-4 shadow-lg backdrop-blur-sm">
+        <div className="bg-black/60 border-2 border-red-500/50 text-red-200 px-4 py-3 rounded-lg mb-4 shadow-lg backdrop-blur-sm">
           <div className="flex items-start gap-2">
             <span className="text-xl">⚠️</span>
             <div className="flex-1">
@@ -90,9 +90,9 @@ export default function ResultPanel({ contractAddress, signer }: ResultPanelProp
       )}
 
       {step && (
-        <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-2 border-purple-500/50 text-purple-200 px-4 py-3 rounded-lg mb-4 shadow-lg backdrop-blur-sm">
+        <div className="bg-black/60 border-2 border-gold-500/50 text-gold-200 px-4 py-3 rounded-lg mb-4 shadow-lg backdrop-blur-sm">
           <div className="flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gold-400"></div>
             <span className="font-medium">{step}</span>
           </div>
         </div>
@@ -100,30 +100,30 @@ export default function ResultPanel({ contractAddress, signer }: ResultPanelProp
 
       {result && (
         <div className="space-y-4 mb-4">
-          <div className="bg-gradient-to-br from-gray-900/50 to-blue-900/30 rounded-xl p-6 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm">
-            <div className="text-sm font-semibold text-gray-400 mb-2 uppercase tracking-wide">Risk Score</div>
-            <div className="text-5xl font-bold text-gray-100 mb-2">{result.score}</div>
-            <div className="text-xs text-gray-400 bg-gray-900/50 px-3 py-2 rounded-lg border border-gray-700/50">
+          <div className="bg-black/60 rounded-xl p-6 border-2 border-gold-500/30 shadow-lg backdrop-blur-sm">
+            <div className="text-sm font-semibold text-gold-400 mb-2 uppercase tracking-wide">Risk Score</div>
+            <div className="text-5xl font-bold text-gold-300 mb-2">{result.score}</div>
+            <div className="text-xs text-gray-400 bg-black/50 px-3 py-2 rounded-lg border border-gold-500/20">
               Formula: (Income × 2) + (Repayment Score × 3) - Debt - Loan Amount
             </div>
           </div>
 
           <div className={`rounded-xl p-6 border-2 shadow-lg transform transition-transform backdrop-blur-sm ${
             result.approved === 1 
-              ? 'bg-gradient-to-br from-green-900/40 to-emerald-900/40 border-green-500/50' 
-              : 'bg-gradient-to-br from-red-900/40 to-orange-900/40 border-red-500/50'
+              ? 'bg-black/60 border-gold-500/50' 
+              : 'bg-black/60 border-red-500/50'
           }`}>
-            <div className="text-sm font-semibold text-gray-400 mb-2 uppercase tracking-wide">Status</div>
-            <div className={`text-4xl font-bold mb-2 ${result.approved === 1 ? 'text-green-400' : 'text-red-400'}`}>
+            <div className="text-sm font-semibold text-gold-400 mb-2 uppercase tracking-wide">Status</div>
+            <div className={`text-4xl font-bold mb-2 ${result.approved === 1 ? 'text-gold-400' : 'text-red-400'}`}>
               {result.approved === 1 ? '✓ Approved' : '✗ Rejected'}
             </div>
             {result.approved === 0 && (
-              <div className="text-sm text-gray-300 mt-2 bg-gray-900/50 px-3 py-2 rounded-lg border border-gray-700/50">
+              <div className="text-sm text-gray-300 mt-2 bg-black/50 px-3 py-2 rounded-lg border border-red-500/30">
                 Your risk score is below the minimum threshold for approval.
               </div>
             )}
             {result.approved === 1 && (
-              <div className="text-sm text-green-300 mt-2 bg-gray-900/50 px-3 py-2 rounded-lg font-medium border border-green-500/30">
+              <div className="text-sm text-gold-300 mt-2 bg-black/50 px-3 py-2 rounded-lg font-medium border border-gold-500/30">
                 🎉 Congratulations! Your loan application has been approved.
               </div>
             )}
@@ -134,7 +134,7 @@ export default function ResultPanel({ contractAddress, signer }: ResultPanelProp
       <button
         onClick={handleDecrypt}
         disabled={loading}
-        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-500 hover:to-pink-500 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all transform hover:scale-105 shadow-lg shadow-purple-500/50"
+        className="w-full bg-gradient-to-r from-gold-600 to-gold-500 text-black py-3 px-4 rounded-lg font-semibold hover:from-gold-500 hover:to-gold-400 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all transform hover:scale-105 shadow-lg shadow-gold-500/50"
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">
