@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-main: #0a0a0a;
+  --bg-card: #151515;
+  --bg-card-hover: #1a1a1a;
+  
+  --border-gold: #f6c65b;
+  --text-gold: #f6c65b;
+  
+  --text-light: #e6e6e6;
+  --text-muted: #9b9b9b;
+  
+  --accent-gold-glow: rgba(246, 198, 91, 0.25);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -9,8 +23,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #000000;
-  color: #ffffff;
+  background: linear-gradient(135deg, #0a0a0a 0%, #151515 50%, #0f0f0f 100%);
+  background-attachment: fixed;
+  color: var(--text-light);
+  min-height: 100vh;
 }
 
 code {
@@ -24,15 +40,30 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: var(--bg-main);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ffd700;
+  background: var(--border-gold);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #e6c200;
+  background: #e7b44a;
+}
+
+/* Premium card glow effect */
+@layer utilities {
+  .card-glow {
+    box-shadow: 0 0 15px var(--accent-gold-glow);
+  }
+  
+  .card-glow-strong {
+    box-shadow: 0 0 25px var(--accent-gold-glow);
+  }
+  
+  .button-glow {
+    box-shadow: 0 0 10px var(--accent-gold-glow);
+  }
 }
 
